@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a2540">
+    <meta name="description" content="Aide au diagnostic by Kevin - Outil professionnel IA & Rappels Constructeur">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Aide au diagnostic by Kevin</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620591.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620591.png">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body {
+            background: url('https://images.unsplash.com/photo-1619725002198-6a689b72f41d?auto=format&fit=crop&w=1920&q=80') center/cover fixed;
+            min-height: 100vh; color: #fff;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(10,37,64,0.92) 0%, rgba(26,74,122,0.85) 50%, rgba(255,107,53,0.7) 100%);
+            z-index: -1;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .header {
+            text-align: center; padding: 25px 15px;
+            background: rgba(10, 37, 64, 0.95); border-radius: 20px; margin-bottom: 20px;
+            backdrop-filter: blur(15px); box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,107,53,0.3);
+        }
+        .header h1 {
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #ff6b35, #ffd700);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 8px; font-weight: 800;
+        }
+        .header p { color: #a0c4e8; font-size: 1em; }
+        
+        .nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .nav-tab {
+            padding: 10px 18px; background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 30px;
+            color: #fff; cursor: pointer; transition: all 0.3s; font-size: 0.9em; font-weight: 600;
+        }
+        .nav-tab:hover, .nav-tab.active {
+            background: linear-gradient(45deg, #ff6b35, #ff8c42); border-color: #ff6b35;
+            transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+        }
+        
+        .section {
+            background: rgba(255,255,255,0.97); color: #333; border-radius: 20px;
+            padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none;
+        }
+        .section.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .section h2 { color: #0a2540; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #ff6b35; font-size: 1.6em; }
+        .section h3 { color: #0a2540; margin: 20px 0 12px; font-size: 1.2em; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 700; color: #0a2540; margin-bottom: 6px; font-size: 0.95em; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;
+            font-size: 1em; transition: all 0.3s; background: #f8f9fa;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #ff6b35; background: #fff; box-shadow: 0 0 0 3px rgba(255,107,53,0.15);
+        }
+        .form-group textarea { min-height: 90px; resize: vertical; }
+        
+        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+        .checkbox-item {
+            display: flex; align-items: center; padding: 10px; background: #f8f9fa;
+            border-radius: 10px; border: 2px solid #e0e0e0; transition: all 0.3s; cursor: pointer;
+        }
+        .checkbox-item:hover { border-color: #ff6b35; background: #fff5f0; }
+        .checkbox-item input { width: 18px; height: 18px; margin-right: 10px; accent-color: #ff6b35; }
+        .checkbox-item label { cursor: pointer; flex: 1; font-weight: 500; font-size: 0.9em; }
+        
+        .btn {
+            padding: 12px 24px; border: none; border-radius: 30px; font-size: 0.95em;
+            font-weight: 700; cursor: pointer; transition: all 0.3s; margin: 5px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-primary { background: linear-gradient(45deg, #ff6b35, #ff8c42); color: #fff; box-shadow: 0 5px 15px rgba(255,107,53,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,107,53,0.5); }
+        .btn-secondary { background: #0a2540; color: #fff; }
+        .btn-success { background: #28a745; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-warning { background: #ffc107; color: #333; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #0a2540; color: #fff; font-weight: 700; }
+        tr:hover { background: #f8f9fa; }
+        .status-authorized { color: #28a745; font-weight: 700; }
+        .status-refused { color: #dc3545; font-weight: 700; }
+        .status-pending { color: #ffc107; font-weight: 700; }
+        
+        .alert { padding: 12px 15px; border-radius: 10px; margin: 12px 0; font-weight: 600; font-size: 0.95em; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        .alert-danger { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        
+        .conclusion-box {
+            background: linear-gradient(135deg, #0a2540, #1a4a7a); color: #fff;
+            padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 5px solid #ff6b35;
+        }
+        .conclusion-box h3 { color: #ffd700; margin-bottom: 12px; }
+        .conclusion-box h4 { color: #ff8c42; margin-top: 15px; margin-bottom: 8px; }
+        .conclusion-box ul { margin-left: 20px; margin-bottom: 10px; }
+        .conclusion-box li { margin-bottom: 5px; line-height: 1.5; }
+        .conclusion-box code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        .conclusion-box a { color: #ffd700; }
+        
+        .recall-card { background: #f8f9fa; border-left: 4px solid #ff6b35; padding: 12px; margin: 10px 0; border-radius: 8px; }
+        .recall-card h4 { color: #0a2540; margin-bottom: 6px; }
+        
+        .hidden { display: none !important; }
+        .login-box { max-width: 400px; margin: 40px auto; background: rgba(255,255,255,0.97); padding: 35px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        .login-box h2 { text-align: center; color: #0a2540; margin-bottom: 25px; }
+        
+        .user-info { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 12px; margin-bottom: 15px; backdrop-filter: blur(10px); }
+        .badge { padding: 4px 10px; border-radius: 15px; font-size: 0.75em; font-weight: 700; margin-left: 8px; }
+        .badge-admin { background: #ffd700; color: #0a2540; }
+        .badge-user { background: #28a745; color: #fff; }
+
+        .install-banner {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: #fff; padding: 20px; border-radius: 15px;
+            margin-bottom: 20px; text-align: center;
+            box-shadow: 0 5px 20px rgba(255,107,53,0.4);
+            display: none;
+        }
+        .install-banner.show { display: block; animation: slideDown 0.5s; }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        .install-banner h3 { margin-bottom: 10px; font-size: 1.3em; }
+        .install-banner p { margin-bottom: 15px; font-size: 0.95em; }
+        .install-banner .btn { background: #fff; color: #ff6b35; }
+
+        .help-install {
+            background: linear-gradient(135deg, #0a2540, #1a4a7a);
+            color: #fff; padding: 20px; border-radius: 15px;
+            margin: 15px 0; border: 2px solid #ff6b35;
+        }
+        .help-install h4 { color: #ffd700; margin-bottom: 10px; }
+        .help-install ol { margin-left: 20px; line-height: 1.8; }
+        .help-install .platform { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin: 10px 0; }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.6em; }
+            .nav-tabs { flex-direction: column; }
+            .nav-tab { width: 100%; text-align: center; }
+            .checkbox-group { grid-template-columns: 1fr; }
+            table { font-size: 0.8em; }
+            th, td { padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="installBanner" class="install-banner">
+        <h3>📲 Installez l'application !</h3>
+        <p>Accès rapide et mises à jour automatiques</p>
+        <button class="btn" onclick="installPWA()">📲 Installer maintenant</button>
+        <button class="btn btn-secondary" onclick="dismissInstall()" style="margin-left:10px">Plus tard</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Aide au diagnostic by Kevin</h1>
+            <p>Outil professionnel IA & Rappels Constructeur — Toutes marques 2017-2026</p>
+        </div>
+
+        <div id="loginSection" class="login-box">
+            <h2>🔐 Connexion Sécurisée</h2>
+            <div class="form-group">
+                <label>Nom d'utilisateur</label>
+                <input type="text" id="loginUsername" placeholder="Votre identifiant">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="loginPassword" placeholder="Votre mot de passe">
+            </div>
+            <button class="btn btn-primary" onclick="handleLogin()" style="width:100%">Se connecter</button>
+            <button class="btn btn-secondary" onclick="showAccessRequest()" style="width:100%;margin-top:10px"> Demander un accès</button>
+            <div id="loginMessage" style="margin-top:15px"></div>
+        </div>
+
+        <div id="mainApp" class="hidden">
+            <div class="user-info">
+                <div>
+                    <strong id="currentUserDisplay">Utilisateur</strong>
+                    <span id="userBadge" class="badge badge-user">Utilisateur</span>
+                </div>
+                <button class="btn btn-danger" onclick="logout()" style="padding:6px 15px;font-size:0.8em">Déconnexion</button>
+            </div>
+
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showSection('diagnostic')">🚗 Diagnostic</div>
+                <div class="nav-tab" onclick="showSection('analysis')"> Analyse IA</div>
+                <div class="nav-tab" onclick="showSection('recalls')">📋 Rappels & TSB</div>
+                <div class="nav-tab" onclick="showSection('history')">📁 Historique</div>
+                <div class="nav-tab admin-only hidden" onclick="showSection('admin')">⚙️ Supervision</div>
+                <div class="nav-tab" onclick="showSection('share')">📤 Partager</div>
+                <div class="nav-tab" onclick="showSection('help')">❓ Aide</div>
+            </div>
+
+            <div id="diagnosticSection" class="section active">
+                <h2>🚗 Formulaire de Diagnostic</h2>
+                <div class="alert alert-info">Remplissez les constatations techniques. L'IA analysera l'origine du désordre.</div>
+
+                <h3>🔍 Identification automatique du véhicule</h3>
+                <div class="alert alert-info">Identifiez automatiquement par VIN ou immatriculation.</div>
+                <div class="form-group">
+                    <label>Type d'identification</label>
+                    <select id="idType">
+                        <option value="vin">Numéro VIN (17 caractères)</option>
+                        <option value="plate">Immatriculation (ex: AB-123-CD)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valeur</label>
+                    <input type="text" id="idValue" placeholder="Entrez le VIN ou l'immatriculation">
+                    <button class="btn btn-primary" onclick="identifyVehicle()" style="margin-top:10px">🔍 Identifier</button>
+                </div>
+                <div id="idResult"></div>
+
+                <h3>📌 Informations Véhicule</h3>
+                <div class="form-group">
+                    <label>Marque</label>
+                    <select id="vehicleBrand">
+                        <option value="">-- Sélectionner --</option>
+                        <optgroup label="🇫🇷 Françaises"><option>Peugeot</option><option>Citroën</option><option>Renault</option><option>DS</option><option>Alpine</option></optgroup>
+                        <optgroup label="🇪🇺 Européennes"><option>Volkswagen</option><option>Audi</option><option>BMW</option><option>Mercedes</option><option>Porsche</option><option>Fiat</option><option>Alfa Romeo</option><option>Opel</option><option>Volvo</option><option>SEAT</option><option>Škoda</option><option>Mini</option><option>Land Rover</option><option>Jaguar</option></optgroup>
+                        <optgroup label="🌏 Asiatiques"><option>Toyota</option><option>Honda</option><option>Nissan</option><option>Mazda</option><option>Subaru</option><option>Mitsubishi</option><option>Suzuki</option><option>Lexus</option><option>Hyundai</option><option>Kia</option><option>Genesis</option><option>BYD</option><option>XPeng</option><option>NIO</option><option>Polestar</option></optgroup>
+                        <optgroup label="🇺 Américaines"><option>Ford</option><option>Chevrolet</option><option>Dodge</option><option>Jeep</option><option>Chrysler</option><option>Cadillac</option><option>GMC</option><option>Lincoln</option><option>Tesla</option><option>Rivian</option><option>Lucid</option></optgroup>
+                    </select>
+                </div>
+                <div class="form-group"><label>Modèle</label><input type="text" id="vehicleModel" placeholder="Ex: 308, Clio, Golf..."></div>
+                <div class="form-group"><label>Année</label><input type="number" id="vehicleYear" placeholder="Ex: 2019" min="1950" max="2026"></div>
+                <div class="form-group">
+                    <label>Motorisation</label>
+                    <select id="vehicleEngine">
+                        <option value="">-- Sélectionner --</option>
+                        <option>Essence</option><option>Diesel (Gazole)</option><option>Hybride</option><option>Hybride rechargeable</option><option>Électrique</option><option>GPL</option><option>GNV</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Kilométrage (km)</label><input type="number" id="vehicleMileage" placeholder="Ex: 85000"></div>
+                <div class="form-group"><label>Numéro VIN (optionnel)</label><input type="text" id="vehicleVIN" placeholder="17 caractères" maxlength="17"></div>
+
+                <h3>⚠️ Symptômes & Constatations</h3>
+                <div class="form-group"><label>Symptôme principal</label><textarea id="symptoms" placeholder="Décrivez le symptôme..."></textarea></div>
+                <div class="form-group"><label>Contexte d'apparition</label><textarea id="context" placeholder="Quand et dans quelles conditions..."></textarea></div>
+                <div class="form-group"><label>Défauts visuels sur pièces</label><textarea id="visualDefects" placeholder="Anomalies visuelles..."></textarea></div>
+
+                <h3>🔍 Codes Défauts (DTC)</h3>
+                <div class="form-group">
+                    <label>Lecture des codes défauts réalisée ?</label>
+                    <div style="display:flex;gap:20px;margin-top:8px">
+                        <label style="display:flex;align-items:center;cursor:pointer"><input type="radio" name="dtcRead" value="oui" onchange="toggleDTCInput(true)" style="margin-right:8px;width:18px;height:18px"> OUI</label>
+                        <label style="display:flex;align-items:center;cursor:pointer"><input type="radio" name="dtcRead" value="non" onchange="toggleDTCInput(false)" style="margin-right:8px;width:18px;height:18px"> NON</label>
+                    </div>
+                </div>
+                <div id="dtcInputSection" class="hidden">
+                    <div class="form-group"><label>Numéros de codes DTC</label><textarea id="dtcCodes" placeholder="Ex: P0300, P0171 (un par ligne)"></textarea></div>
+                </div>
+
+                <h3>✅ Questionnaire Technique (QCM)</h3>
+                <div class="form-group">
+                    <label>🔍 Filtrer par catégorie :</label>
+                    <select id="symptomFilter" onchange="filterSymptomsByCategory(this.value)" style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:1em;background:#f8f9fa;">
+                        <option value="all">📋 Tous les symptômes</option>
+                        <option value="moteur">🔧 Moteur</option>
+                        <option value="transmission">⚙️ Transmission</option>
+                        <option value="electrique">⚡ Électrique</option>
+                        <option value="electronique">💻 Électronique</option>
+                        <option value="abs">🛑 ABS</option>
+                        <option value="adas">🎯 ADAS</option>
+                        <option value="airbag">🛡️ Airbag</option>
+                        <option value="batterie_haute_tension">🔋 Batterie haute tension</option>
+                        <option value="recharge">🔌 Recharge</option>
+                        <option value="consommation">⛽ Consommation</option>
+                    </select>
+                </div>
+                <div class="alert alert-info">Cochez les cas correspondants.</div>
+                <div class="checkbox-group" id="qcmContainer"></div>
+                <div id="detailSections" style="margin-top:15px"></div>
+
+                <div class="form-group" style="margin-top:20px"><label>Informations complémentaires</label><textarea id="additionalInfo" placeholder="Infos supplémentaires..."></textarea></div>
+
+                <div style="text-align:center;margin-top:25px">
+                    <button class="btn btn-primary" onclick="saveDiagnostic()">💾 Enregistrer</button>
+                    <button class="btn btn-success" onclick="goToAnalysis()">🤖 Lancer l'Analyse IA</button>
+                </div>
+            </div>
+
+            <div id="analysisSection" class="section">
+                <h2>🤖 Analyse IA & Conclusion</h2>
+                <div class="alert alert-info">Analyse croisée avec base de données constructeur et rappels VIN.</div>
+                <div id="analysisContent"></div>
+                <div id="aiConclusion"></div>
+            </div>
+
+            <div id="recallsSection" class="section">
+                <h2>📋 Campagnes de Rappel & TSB</h2>
+                <div class="alert alert-info">Base de données locale (fonctionne hors-ligne).</div>
+                <div class="form-group">
+                    <label>Rechercher par marque/modèle</label>
+                    <input type="text" id="recallSearch" placeholder="Ex: Peugeot 308">
+                    <button class="btn btn-primary" onclick="searchRecalls()" style="margin-top:10px">🔍 Rechercher</button>
+                </div>
+                <div id="recallResults"></div>
+            </div>
+
+            <div id="historySection" class="section">
+                <h2>📁 Historique des Diagnostics</h2>
+                <div id="historyContent"></div>
+            </div>
+
+            <div id="adminSection" class="section">
+                <h2>⚙️ Panneau de Supervision</h2>
+                <div class="alert alert-success">👑 Mode Administrateur activé.</div>
+                <h3>📊 Statistiques</h3>
+                <div id="adminStats"></div>
+                <h3>👥 Gestion des Tiers</h3>
+                <div class="alert alert-warning">⚠️ Contrôle total des accès à distance.</div>
+                <div id="tiersTable"></div>
+            </div>
+
+            <div id="shareSection" class="section">
+                <h2>📤 Partager l'Application</h2>
+                <div class="alert alert-info"> Partagez avec vos tiers.</div>
+
+                <div class="help-install" style="text-align:center">
+                    <h4>📲 Installer l'application</h4>
+                    <p style="margin-bottom:15px">Pour un accès rapide et mises à jour auto</p>
+                    <button class="btn btn-primary" onclick="installPWA()" style="background:#fff;color:#ff6b35">📱 Installer sur l'écran d'accueil</button>
+                    <p id="installMessage" style="margin-top:10px;font-size:0.9em"></p>
+                </div>
+
+                <div class="help-install" style="margin-top:20px">
+                    <h4>🚗 Modèle non listé ?</h4>
+                    <p style="margin-bottom:15px">Suggérez un nouveau modèle pour qu'il soit ajouté !</p>
+                    <button class="btn btn-primary" onclick="suggestNewModel()" style="width:100%">💡 Suggérer un nouveau modèle</button>
+                </div>
+
+                <div class="help-install" style="margin-top:15px">
+                    <h4>🔄 Mise à jour automatique</h4>
+                    <p>Les données se mettent à jour <strong>automatiquement chaque lundi</strong> :</p>
+                    <ul style="margin-left:20px; margin-top:10px">
+                        <li>✅ Nouveaux rappels (NHTSA + rappel.gouv.fr)</li>
+                        <li>✅ Nouveaux modèles commercialisés</li>
+                        <li>✅ Nouvelles motorisations</li>
+                        <li>✅ TSB et bulletins techniques</li>
+                    </ul>
+                    <p style="margin-top:10px; color:#ffd700">
+                        <strong>Dernière MAJ :</strong> <span id="lastUpdateDate">Chargement...</span>
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label> Partager par SMS</label>
+                    <input type="text" id="shareSmsNumber" placeholder="Numéro de téléphone">
+                    <button class="btn btn-primary" onclick="shareBySMS()" style="margin-top:10px"> Envoyer SMS</button>
+                </div>
+
+                <div class="form-group">
+                    <label>📧 Partager par Email</label>
+                    <input type="email" id="shareEmail" placeholder="Adresse email">
+                    <button class="btn btn-primary" onclick="shareByEmail()" style="margin-top:10px"> Envoyer Email</button>
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 Lien de l'application</label>
+                    <input type="text" id="shareLink" readonly value="https://expertkevin06-cell.github.io/aide-diagnostic/">
+                    <button class="btn btn-secondary" onclick="copyLink()" style="margin-top:10px"> Copier</button>
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 Lien direct installation</label>
+                    <input type="text" id="installLink" readonly value="https://expertkevin06-cell.github.io/aide-diagnostic/?install=1">
+                    <button class="btn btn-warning" onclick="copyInstallLink()" style="margin-top:10px"> Copier</button>
+                </div>
+            </div>
+
+            <div id="helpSection" class="section">
+                <h2>❓ Aide à l'installation</h2>
+                
+                <div class="help-install">
+                    <h4>📱 Comment installer ?</h4>
+                    <p style="margin-bottom:15px">Installation en 30 secondes.</p>
+                    
+                    <div class="platform">
+                        <h4>🤖 Android (Chrome)</h4>
+                        <ol>
+                            <li>Ouvrez <strong>Chrome</strong></li>
+                            <li>Allez sur le lien</li>
+                            <li>Appuyez sur <strong>3 points ⋮</strong></li>
+                            <li>Cliquez sur <strong>"Installer"</strong></li>
+                            <li>✅ L'icône apparaît !</li>
+                        </ol>
+                    </div>
+
+                    <div class="platform">
+                        <h4> iPhone (Safari)</h4>
+                        <ol>
+                            <li>Ouvrez <strong>Safari</strong></li>
+                            <li>Allez sur le lien</li>
+                            <li>Appuyez sur <strong>Partager</strong></li>
+                            <li>Cliquez sur <strong>"Sur l'écran d'accueil"</strong></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="help-install">
+                    <h4>🔐 Demander un accès</h4>
+                    <ol>
+                        <li>Ouvrez l'application</li>
+                        <li>Cliquez sur <strong>"📩 Demander un accès"</strong></li>
+                        <li>Créez vos identifiants</li>
+                        <li>Kevin validera votre demande</li>
+                    </ol>
+                </div>
+
+                <div class="help-install">
+                    <h4>🔄 Mises à jour</h4>
+                    <p>L'application se met à jour automatiquement. Vous avez toujours la dernière version.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
