@@ -1,0 +1,136 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-10-23T03:00:00Z",
+  "recalls": [
+    {
+      "brand": "Peugeot",
+      "model": "208",
+      "years": "2012-2026",
+      "engine": "1.2 PureTech 82/110/130",
+      "issue": "⚠️ COURROIE DISTRIBUTION DANS HUILE",
+      "tsb": "PSA-STELLANTIS-2020-012",
+      "category": "courroie_huile",
+      "desc": "DÉFAUT CRITIQUE : Courroie se désagrège dans l'huile → colmatage crépine → chute pression huile → rayures cylindres → casse moteur. RAPPEL OFFICIEL. Remplacement tous les 60 000 km. Huile 0W30 C2 OBLIGATOIRE.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Peugeot",
+      "model": "308",
+      "years": "2013-2026",
+      "engine": "1.2 PureTech 110/130",
+      "issue": "⚠️ COURROIE DISTRIBUTION DANS HUILE",
+      "tsb": "PSA-STELLANTIS-2020-012",
+      "category": "courroie_huile",
+      "desc": "Défaut courroie. Remplacement kit + nettoyage circuit huile + pompe à huile obligatoire.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Peugeot",
+      "model": "208",
+      "years": "2019-2026",
+      "engine": "1.2 PureTech 100/130",
+      "issue": "🔥 TSB 21.07.2026 - BOUGIES DÉFECTUEUSES",
+      "tsb": "STELLANTIS-TSB-2026-07-21-001",
+      "category": "bougies",
+      "desc": "TSB STELLANTIS 21.07.2026 : Bougies défectueuses PureTech. Écartement électrode incorrect → ratés d'allumage → risque casse catalyseur. Remplacement gratuit NGK/Bosch.",
+      "severity": "Moyenne",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Ford",
+      "model": "Fiesta",
+      "years": "2012-2023",
+      "engine": "1.0 EcoBoost 95/100/125/140",
+      "issue": "⚠️ COURROIE WET BELT DANS HUILE",
+      "tsb": "FORD-SSM-2020-001",
+      "category": "courroie_huile",
+      "desc": "DÉFAUT CRITIQUE FORD : Courroie wet belt. Désintégration, colmatage crépine, casse moteur. RAPPEL MONDIAL.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Renault",
+      "model": "Clio",
+      "years": "2019-2026",
+      "engine": "1.0 TCe 100",
+      "issue": "Courroie distribution dans huile",
+      "tsb": "RN-2021-008",
+      "category": "courroie_huile",
+      "desc": "Problème courroie baignant huile.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Volkswagen",
+      "model": "Polo",
+      "years": "2017-2026",
+      "engine": "1.0 TSI 95/110",
+      "issue": "⚠️ COURROIE DISTRIBUTION DANS HUILE",
+      "tsb": "VW-2020-015",
+      "category": "courroie_huile",
+      "desc": "Problème courroie baignant huile.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "BMW",
+      "model": "Série 3",
+      "years": "2019-2026",
+      "engine": "2.0 B47D20 150/190",
+      "issue": "Refroidisseur EGR (RAPPEL)",
+      "tsb": "BMW-2019-012",
+      "category": "refroidissement",
+      "desc": "RAPPEL BMW : Fissure refroidisseur EGR. Risque incendie. Remplacement GRATUIT.",
+      "severity": "CRITIQUE",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    },
+    {
+      "brand": "Tesla",
+      "model": "Model 3",
+      "years": "2017-2026",
+      "engine": "Électrique 283-510 ch",
+      "issue": "Suspension + écran",
+      "tsb": "TS-2021-003",
+      "category": "suspension",
+      "desc": "Rappel bras suspension et écran.",
+      "severity": "Moyenne",
+      "source": "local",
+      "dateAdded": "2026-10-23"
+    }
+  ],
+  "newModels": [
+    {
+      "brand": "Peugeot",
+      "model": "3008 III",
+      "year": 2024,
+      "engines": ["1.2 Hybrid 136", "1.6 Hybrid 195", "Électrique 210/230 ch"],
+      "dateAdded": "2026-10-23",
+      "source": "wikidata"
+    },
+    {
+      "brand": "Renault",
+      "model": "Scénic E-Tech",
+      "year": 2024,
+      "engines": ["Électrique 220 ch"],
+      "dateAdded": "2026-10-23",
+      "source": "wikidata"
+    },
+    {
+      "brand": "Volkswagen",
+      "model": "ID.7",
+      "year": 2024,
+      "engines": ["Électrique 286 ch"],
+      "dateAdded": "2026-10-23",
+      "source": "wikidata"
+    }
+  ]
+}
