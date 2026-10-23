@@ -1,0 +1,18 @@
+{
+  "currentVersion": "1.0.0",
+  "lastUpdate": "2026-10-23T03:00:00Z",
+  "nextUpdate": "2026-10-30T03:00:00Z",
+  "updateFrequency": "weekly",
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-10-23",
+      "changes": [
+        "Version initiale avec système de mise à jour automatique",
+        "8 rappels intégrés",
+        "3 nouveaux modèles ajoutés",
+        "Intégration APIs NHTSA et rappel.gouv.fr"
+      ]
+    }
+  ]
+}
