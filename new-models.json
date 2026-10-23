@@ -1,0 +1,26 @@
+[
+  {
+    "brand": "Peugeot",
+    "model": "3008 III",
+    "year": 2024,
+    "engines": ["1.2 Hybrid 136", "1.6 Hybrid 195", "Électrique 210/230 ch"],
+    "dateAdded": "2026-10-23",
+    "source": "wikidata"
+  },
+  {
+    "brand": "Renault",
+    "model": "Scénic E-Tech",
+    "year": 2024,
+    "engines": ["Électrique 220 ch"],
+    "dateAdded": "2026-10-23",
+    "source": "wikidata"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "ID.7",
+    "year": 2024,
+    "engines": ["Électrique 286 ch"],
+    "dateAdded": "2026-10-23",
+    "source": "wikidata"
+  }
+]
